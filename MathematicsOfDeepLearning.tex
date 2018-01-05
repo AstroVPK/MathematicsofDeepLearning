@@ -242,11 +242,13 @@ Deep Learning is a branch of Machine Learning in which `deep' neural networks ar
 
 \section{Notation} \label{sec:notation}
 
-We shall use \mathbfit{a} to denote vectors and \mathbfss{A} to denote tensors.
+%We shall use \mathbfit{a} to denote vectors and \mathbfss{A} to denote tensors.
 
-Tensors are associated with layers. The $p \times q$ tensor $\mathbfss{A}$ when associated with layer $l$ is denoted $\mathbfss{A}_{p \times q}^{[l]}$. The transpose of this tensor is denoted by $(\mathbfss{A}_{p \times q}^{[l]})^{\top}$. If the tensor is an input tensor to a layer, it may additionally have a minibatch number, $m$, and instance within the minibatch, $i$, associated with it. Thus $(\mathbfss{A}_{p \times q}^{[l]\{m\}(i)})^{\top}$ is the transpose of the $i$-th training example from the $m$-th minibatch in the $l$-th layer from the input tensor $\mathbfss{A}$ which is $p$ rows high by $q$ columns long.
+Tensors are associated with layers. The $p \times q$ tensor $\mathbfss{A}$ when associated with layer $l$ is denoted $\mathbfss{A}_{p \times q}^{[l]}$. The transpose of this tensor is denoted by $(\mathbfss{A}_{p \times q}^{[l]})^{\top}$. If the tensor is an input tensor to a layer, it may additionally have a minibatch number, $m$, and instance within the minibatch, $i$, associated with it. Thus $(\mathbfss{A}_{p \times q}^{[l]\{m\}(i)})^{\top}$ is the transpose of the $i$-th training example from the $m$-th minibatch in the $l$-th layer from the input tensor $\mathbfss{A}$ which is $p$ rows high by $q$ columns long. Furthermore, layers associated with convolutional neural networks may have \textit{channels} associated with them. Channels add extra dimensions to tensors and so $(\mathbfss{A}_{p \times q \times k_{1} \times k_{2}}^{[l]\{m\}(i)})^{\top}$ is the transpose of the $i$-th training example from the $m$-th minibatch in the $l$-th layer from the input tensor $\mathbfss{A}$ which is $p$ rows high by $q$ columns long and has two sets of channels of depth $k_{1}$ and $k_{2}$ respectively.
 
-The $\un^{[l]}$ operator returns the number of nodes, i.e. the width, of the $l$-th layer. Traditionally, the depth of the neural network is denoted by $L$, and hence we must have $0 \leq l \leq L$. The $0$-th layer is a pure input layer i.e. it has no transformation associated with it.
+The $\un^{[l]}$ operator returns the number of nodes, i.e. the width, of the $l$-th layer. Traditionally, the depth of the neural network is denoted by $L$, and hence we must have $0 \leq l \leq L$.
+
+We transform the $l-1$-th layer of activations $\mathbfss{A}_{p \times q}^{[l-1]\{m\}(i)}$, using neural network operations such as convolution etc... in the $l$-th layer to produce the $l$-th layer of activations i.e. $\mathbfss{A}_{p \times q}^{[l]\{m\}(i)}$.
 
 \section{Activation Functions} \label{sec:act}
 
@@ -286,6 +288,8 @@ Q.E.D.
 \section{Feed-Forward Layers} \label{sec:ff}
 
 \section{Convolutional Layers} \label{sec:conv}
+
+\subsection{$1 \times 1$ Convolution} \label{sec:conv11}
 
 \section{Pooling Layers} \label{sec:pool}
 
