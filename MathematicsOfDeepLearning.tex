@@ -312,14 +312,14 @@ with $h^{'} = hs$ \& $w^{'} = ws$ where $s$ is the stride, and $b^{[l]}_{hwc} \e
 
 The derivatives of the loss function $\mathscr{L}$ for $1 \times 1 \times D$ convolution are given by
 \begin{equation} \label{eq:conv11dW}
-  \frac{\uderivative \mathscr{L}}{\uderivative W^{[l]}_{dc}} = \sum_{m,i,j}^{M,H,W} A^{[l](m)}_{i^{'}j^{'}d}  \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative W^{[l]}_{dc}} = \sum_{m,i,j}^{M,H,W} A^{[l](m)}_{i^{'}j^{'}d} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}},
 \end{equation}
 \begin{equation} \label{eq:conv11db}
   \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{m,i,j}^{M,H,W} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}},
 \end{equation}
 and
 \begin{equation} \label{eq:conv11dA_lMinus}
-  \frac{\uderivative \mathscr{L}}{\uderivative A^{[l-1](m)}_{h^{'}w^{'}d}} = \sum_{i,j,k}^{H,W,C} W^{[l]}_{cd}  \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}}
+  \frac{\uderivative \mathscr{L}}{\uderivative A^{[l-1](m)}_{h^{'}w^{'}d}} = \sum_{i,j,k}^{H,W,C} W^{[l]}_{kd}  \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}}
 \end{equation}
 with
 \begin{equation} \label{eq:conv11dZ}
@@ -330,12 +330,50 @@ with
 
 We want the total derivative of $\mathscr{L}$ with respect to a given $W^{[l]}_{dc}$ i.e. $\uderivative \mathscr{L}/\uderivative W^{[l]}_{dc}$. Using the chain rule, we may write the total derivative as
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative W^{[l]}_{dc}} = \sum_{m,i,j,k=1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\uderivative Z^{[l](m)}_{ijk}} \frac{\uderivative Z^{[l](m)}_{ijk}}{\partial W^{[l]}_{dc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative W^{[l]}_{dc}} = \sum_{m,i,j,k=1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}} \frac{\uderivative Z^{[l](m)}_{ijk}}{\uderivative W^{[l]}_{dc}}.
 \end{equation*}
+Notice that
+\begin{equation*}
+  \frac{\uderivative Z^{[l](m)}_{ijk}}{\uderivative W^{[l]}_{dc}} = \delta_{ck}A^{[l](m)}_{i^{'}j^{'}d},
+\end{equation*}
+and so
+\begin{equation*}
+  \frac{\uderivative \mathscr{L}}{\uderivative W^{[l]}_{dc}} = \sum_{m,i,j,k=1}^{M,H,W,C} \delta_{ck}A^{[l](m)}_{i^{'}j^{'}d} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}} = \sum_{m,i,j=1}^{M,H,W} A^{[l](m)}_{i^{'}j^{'}d} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}},
+\end{equation*}
+Q.E.D.
 
-\begin{equation} \label{eq:conv11dZ}
+Similarly,
+\begin{equation*}
+  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{m,i,j,k=1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}} \frac{\uderivative Z^{[l](m)}_{ijk}}{\uderivative b^{[l]}_{c}}.
+\end{equation*}
+Now,
+\begin{equation*}
+  \frac{\uderivative Z^{[l](m)}_{ijk}}{\uderivative b^{[l]}_{c}} = \delta_{ck},
+\end{equation*}
+and so
+\begin{equation*}
+  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{m,i,j,k=1}^{M,H,W,C} \delta_{ck} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}} = \sum_{m,i,j=1}^{M,H,W} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}},
+\end{equation*}
+Q.E.D.
+
+Lastly,
+\begin{equation*}
+  \frac{\uderivative \mathscr{L}}{\uderivative A^{[l-1](m)}_{h^{'}w^{'}d}} = \sum_{n,i,j,k=1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\partial Z^{[l](n)}_{ijk}} \frac{\uderivative Z^{[l](n)}_{ijk}}{\uderivative A^{[l-1](m)}_{h^{'}w^{'}d}}.
+\end{equation*}
+However,
+\begin{equation*}
+  \frac{\uderivative Z^{[l](n)}_{ijk}}{\uderivative A^{[l-1](m)}_{h^{'}w^{'}d}} = \delta_{mn} W^{[l]}_{kd},
+\end{equation*}
+and so
+\begin{equation*}
+  \frac{\uderivative \mathscr{L}}{\uderivative A^{[l-1](m)}_{h^{'}w^{'}d}} = \sum_{n,i,j,k=1}^{M,H,W,C} \delta_{mn}  W^{[l]}_{kd} \frac{\partial \mathscr{L}}{\partial Z^{[l](n)}_{ijk}} = \sum_{i,j,k=1}^{H,W,C} W^{[l]}_{kd} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}},
+\end{equation*}
+Q.E.D.
+
+In all three cases,
+\begin{equation*}
   \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial A^{[l](m)}_{ijk}} \frac{\uderivative A^{[l](m)}_{ijk}}{\uderivative Z^{[l](m)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial A^{[l](m)}_{ijk}} \frac{\uderivative g^{[l]}(Z^{[l](m)}_{ijk})}{\uderivative Z^{[l](m)}_{ijk}}.
-\end{equation}
+\end{equation*}
 
 \section{Pooling Layers} \label{sec:pool}
 
