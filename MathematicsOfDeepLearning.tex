@@ -78,6 +78,7 @@
 %% using \newcommand. Your macros should appear before
 %% the \begin{document} command.
 %%
+\usepackage{mathrsfs}
 \newcommand{\vdag}{(v)^\dagger}
 \newcommand\aastex{AAS\TeX}
 \newcommand\latex{La\TeX}
@@ -250,6 +251,8 @@ The $\un^{[l]}$ operator returns the number of nodes, i.e. the width, of the $l$
 
 We transform the $l-1$-th layer of activations $\mathbfss{A}_{p \times q}^{[l-1]\{m\}(i)}$, using neural network operations such as convolution etc... in the $l$-th layer to produce the $l$-th layer of activations i.e. $\mathbfss{A}_{p \times q}^{[l]\{m\}(i)}$.
 
+Neural networks use several different types of products. We shall denote the standard scalar product of two numbers with \textit{no} special symbol i.e. the product of the scalars $a$ \& $b$ shall be denoted by $ab$.
+
 \section{Activation Functions} \label{sec:act}
 
 \subsection{Sigmoid Activation Function} \label{sec:sigmoid}
@@ -290,6 +293,49 @@ Q.E.D.
 \section{Convolutional Layers} \label{sec:conv}
 
 \subsection{$1 \times 1$ Convolution} \label{sec:conv11}
+
+$1 \times 1$ convolution is a misnomer. Recall that both the input and output activation tensors may have more than $1$ channels. $1 \times 1$ convolution essentially convolves over all the channels in the input layer and thus there is an implicit hidden dimension in the term $1 \times 1$ convolution i.e. the reader should really understand the term $1 \times 1$ convolution to mean $1 \times 1 \times D$ convolution where $D$ is the depth of the input tensor.
+
+By convention, the size of the filter in the $3^{\mathrm{rd}}$ dimension always matches the depth of the input layer. Visualize $1 \times 1$ convolution as follows: Imagine the input tensor to be a block of numbers with height, width, and depth equal to $H \times W \times D$. The $1 \times 1$ convolution filter is a pencil of numbers that is $1 \times 1 \times D$. Starting at the top right corner of the input tensor, scan the pencil across the height and width of the tensor while keeping the depth of the pencil aligned with the depth of the tensor. The output of $1 \times 1$ convolution is just the inner product of the pencil with the vector of numbers from the input tensor that the pencil overlaps with. It is readily apparent that this operation will produce an output tensor of the same height and width as the input (assuming a stride of $1$) with depth equal to $1$ i.e. a normal matrix.
+
+It is rarely the case that a single $1 \times 1 \times \un^{[l-1]}$ convolution is applied to the input tensor. More often than not, multiple filters i.e. a \textit{filter bank} is applied to the input tensor. If the filter bank contains $C$ filters, the filter bank has dimensions $1 \times 1 \times D \times C$ and produces an output tensor of dimensions $H \times W \times C$ (again assuming unit stride).
+
+Mathematically, $1 \times 1$ convolution performs the following operations--
+\begin{align} \label{eq:conv11}
+\begin{split}
+  Z^{[l](m)}_{hwc} &= \sum_{i}^{D} W^{[l]}_{ic}A^{[l-1](m)}_{h^{'}w^{'}i} + b^{[l]}_{hwc},
+\\
+  A^{[l](m)}_{hwc} &= g^{[l]}(Z^{[l](m)}_{hwc}),
+\end{split}
+\end{align}
+with $h^{'} = hs$ \& $w^{'} = ws$ where $s$ is the stride, and $b^{[l]}_{hwc} \equiv b^{[l]}_{h^{'}w^{'}c} \forall c$. Notice that since $b^{[l]}_{hwc} \equiv b^{[l]}_{h^{'}w^{'}c} \forall c$, we have just one unique value of $b$ per output channel. In the \textsc{Python} programming language, we would say that we \textit{broadcast} $b$ to the shape of $Z^{[l](m)}_{hwc}$.
+
+The derivatives of the loss function $\mathscr{L}$ for $1 \times 1 \times D$ convolution are given by
+\begin{equation} \label{eq:conv11dW}
+  \frac{\uderivative \mathscr{L}}{\uderivative W^{[l]}_{dc}} = \sum_{m,i,j}^{M,H,W} A^{[l](m)}_{i^{'}j^{'}d}  \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}},
+\end{equation}
+\begin{equation} \label{eq:conv11db}
+  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{m,i,j}^{M,H,W} \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}},
+\end{equation}
+and
+\begin{equation} \label{eq:conv11dA_lMinus}
+  \frac{\uderivative \mathscr{L}}{\uderivative A^{[l-1](m)}_{h^{'}w^{'}d}} = \sum_{i,j,k}^{H,W,C} W^{[l]}_{cd}  \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijc}}
+\end{equation}
+with
+\begin{equation} \label{eq:conv11dZ}
+  \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial A^{[l](m)}_{ijk}} \frac{\uderivative g^{[l]}(Z^{[l](m)}_{ijk})}{\uderivative Z^{[l](m)}_{ijk}}.
+\end{equation}
+
+\subsubsection{Derivation}
+
+We want the total derivative of $\mathscr{L}$ with respect to a given $W^{[l]}_{dc}$ i.e. $\uderivative \mathscr{L}/\uderivative W^{[l]}_{dc}$. Using the chain rule, we may write the total derivative as
+\begin{equation*}
+  \frac{\uderivative \mathscr{L}}{\uderivative W^{[l]}_{dc}} = \sum_{m,i,j,k=1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\uderivative Z^{[l](m)}_{ijk}} \frac{\uderivative Z^{[l](m)}_{ijk}}{\partial W^{[l]}_{dc}},
+\end{equation*}
+
+\begin{equation} \label{eq:conv11dZ}
+  \frac{\partial \mathscr{L}}{\partial Z^{[l](m)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial A^{[l](m)}_{ijk}} \frac{\uderivative A^{[l](m)}_{ijk}}{\uderivative Z^{[l](m)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial A^{[l](m)}_{ijk}} \frac{\uderivative g^{[l]}(Z^{[l](m)}_{ijk})}{\uderivative Z^{[l](m)}_{ijk}}.
+\end{equation}
 
 \section{Pooling Layers} \label{sec:pool}
 
