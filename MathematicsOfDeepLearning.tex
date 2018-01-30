@@ -298,7 +298,7 @@ Convolutional layers usually include a bias term of the following form -
 \end{equation}
 where the same bias is applied to each pixel within the same channel i.e. equation \eqref{eq:convbias} expands to $H \times W$ equations by Einstein's summation convention. The derivative of the loss with respect to the bias terms are given by
 \begin{equation} \label{eq:gradconvbias}
-  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial T^{[l-1](a)}_{ijc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial T^{[l](a)}_{ijc}},
 \end{equation}
 while the derivative of the loss with respect to the inputs are given by
 \begin{equation} \label{eq:propconvbias}
