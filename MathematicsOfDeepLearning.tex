@@ -79,6 +79,9 @@
 %% the \begin{document} command.
 %%
 \usepackage{mathrsfs}
+\usepackage{hyperref}	% Hyperlinks
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,filecolor=blue,urlcolor=blue}
+\usepackage{newtxtext,newtxmath}
 \newcommand{\vdag}{(v)^\dagger}
 \newcommand\aastex{AAS\TeX}
 \newcommand\latex{La\TeX}
@@ -255,7 +258,50 @@ Neural networks use several different types of products. We shall denote the sta
 
 Note that we distinguish between the tensor $\mathbfss{T}$ and the $i$-, $j$-th component of that tensor $T_{ij}$. The tensors encountered in Deep Learning can have lots of large dimensions. Hence, we shall write all operations using components as opposed to whole tensors. There is no downside to this choice since we never perform coordinate transformations in Deep Learning and hance writing tensor equations buys us no benefit.
 
-\section{Activation Functions} \label{sec:act}
+\section{Operations} \label{sec:op}
+
+
+\subsection{ReLU Activation Function} \label{sec:relu}
+
+The ReLU (Rectified Linear Unit) activation function takes the form
+\begin{equation} \label{eq:relu}
+  g(z) =
+  \begin{cases}
+    0 & \text{if $z < 0$} \\
+    z & \text{otherwise},
+  \end{cases}
+\end{equation}
+making it discontinuous at $z = 0$. Deep Learning cheats around this discontinuity by defining the derivative so that it is either right-continuous or left-continuous. In this work, we shall choose to make the derivative right-continuous. Therefore, the derivative of the ReLU activation function is
+\begin{equation} \label{eq:gradrelu}
+  \frac{\uderivative g(z)}{\uderivative z} =
+  \begin{cases}
+    0 & \text{if $z < 0$} \\
+    1 & \text{otherwise},
+  \end{cases}
+\end{equation}
+
+\subsubsection{Derivation}
+
+It is evident that for $z < 0$,
+\begin{equation*}
+  \frac{\uderivative g(z)}{\uderivative z} = 0,
+\end{equation*}
+since $g(z) = 0 \forall z < 0$. Similarly, since $g(z) = 1 \forall z \geq 0$,
+\begin{equation*}
+  \frac{\uderivative g(z)}{\uderivative z} = 1,
+\end{equation*}
+$\forall z \geq 0$. Since
+\begin{equation*}
+  \underset{z \uparrow 0}{\lim}\frac{\uderivative g(z)}{\uderivative z} = 0,
+\end{equation*}
+and
+\begin{equation*}
+  \underset{z \downarrow 0}{\lim}\frac{\uderivative g(z)}{\uderivative z} = 1,
+\end{equation*}
+we can arbitarily choose to define
+\begin{equation*}
+  \frac{\uderivative g(z)}{\uderivative z}\Bigr|_{z = 0} = 1,
+\end{equation*}
 
 \subsection{Sigmoid Activation Function} \label{sec:sigmoid}
 
@@ -288,7 +334,6 @@ Now $\ue^{-z} = \frac{1}{\sigma} - 1 = \frac{1 - \sigma}{\sigma}$ and so
 \end{equation*}
 Q.E.D.
 
-\section{Operations} \label{sec:op}
 
 \subsection{Bias (Convolutional Layer)} \label{sec:bias}
 
