@@ -245,13 +245,15 @@ Deep Learning is a branch of Machine Learning in which `deep' neural networks ar
 
 %We shall use \mathbfit{a} to denote vectors and \mathbfss{A} to denote tensors.
 
-Tensors are associated with layers. The $p \times q$ tensor $\mathbfss{A}$ when associated with layer $l$ is denoted $\mathbfss{A}_{p \times q}^{[l]}$. The transpose of this tensor is denoted by $(\mathbfss{A}_{p \times q}^{[l]})^{\top}$. If the tensor is an input tensor to a layer, it may additionally have a minibatch number, $m$, and instance within the minibatch, $i$, associated with it. Thus $(\mathbfss{A}_{p \times q}^{[l]\{m\}(i)})^{\top}$ is the transpose of the $i$-th training example from the $m$-th minibatch in the $l$-th layer from the input tensor $\mathbfss{A}$ which is $p$ rows high by $q$ columns long. Furthermore, layers associated with convolutional neural networks may have \textit{channels} associated with them. Channels add extra dimensions to tensors and so $(\mathbfss{A}_{p \times q \times k_{1} \times k_{2}}^{[l]\{m\}(i)})^{\top}$ is the transpose of the $i$-th training example from the $m$-th minibatch in the $l$-th layer from the input tensor $\mathbfss{A}$ which is $p$ rows high by $q$ columns long and has two sets of channels of depth $k_{1}$ and $k_{2}$ respectively.
+Tensors are associated with layers. The $p \times q$ tensor $\mathbfss{A}$ when associated with layer $l$ is denoted $\mathbfss{A}_{p \times q}^{[l]}$. The transpose of this tensor is denoted by $(\mathbfss{A}_{p \times q}^{[l]})^{\top}$. If the tensor is an input tensor to a layer, it may additionally have a minibatch index, $m$, and instance within the minibatch, $i$, associated with it. Thus $(\mathbfss{A}_{p \times q}^{[l]\{m\}(i)})^{\top}$ is the transpose of the $i$-th training example from the $m$-th minibatch in the $l$-th layer from the input tensor $\mathbfss{A}$ which is $p$ rows high by $q$ columns long. Furthermore, layers associated with convolutional neural networks may have \textit{channels} associated with them. Channels add extra dimensions to tensors and so $(\mathbfss{A}_{p \times q \times k_{1} \times k_{2}}^{[l]\{m\}(i)})^{\top}$ is the transpose of the $i$-th training example from the $m$-th minibatch in the $l$-th layer from the input tensor $\mathbfss{A}$ which is $p$ rows high by $q$ columns long and has two sets of channels of depth $k_{1}$ and $k_{2}$ respectively.
 
 The $\un^{[l]}$ operator returns the number of nodes, i.e. the width, of the $l$-th layer. Traditionally, the depth of the neural network is denoted by $L$, and hence we must have $0 \leq l \leq L$.
 
 We transform the $l-1$-th layer of activations $\mathbfss{A}_{p \times q}^{[l-1]\{m\}(i)}$, using neural network operations such as convolution etc... in the $l$-th layer to produce the $l$-th layer of activations i.e. $\mathbfss{A}_{p \times q}^{[l]\{m\}(i)}$.
 
 Neural networks use several different types of products. We shall denote the standard scalar product of two numbers with \textit{no} special symbol i.e. the product of the scalars $a$ \& $b$ shall be denoted by $ab$.
+
+Note that we distinguish between the tensor $\mathbfss{T}$ and the $i$-, $j$-th component of that tensor $T_{ij}$. The tensors encountered in Deep Learning can have lots of large dimensions. Hence, we shall write all operations using components as opposed to whole tensors. There is no downside to this choice since we never perform coordinate transformations in Deep Learning and hance writing tensor equations buys us no benefit.
 
 \section{Activation Functions} \label{sec:act}
 
@@ -294,7 +296,7 @@ Convolutional layers usually include a bias term of the following form -
 \begin{equation} \label{eq:convbias}
   T^{[l](m)}_{hwc} = T^{[l-1](m)}_{hwc} + b^{[l]}_{c},
 \end{equation}
-where the same bias is applied to each pixel within the same channel i.e. equation \eqref{eq:convbias} expands to $H \times W$ equations by Einstein's summation convention. The derivative of the loss with respect to the  bias terms are given by
+where the same bias is applied to each pixel within the same channel i.e. equation \eqref{eq:convbias} expands to $H \times W$ equations by Einstein's summation convention. The derivative of the loss with respect to the bias terms are given by
 \begin{equation} \label{eq:gradconvbias}
   \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial T^{[l-1](a)}_{ijc}},
 \end{equation}
@@ -349,12 +351,12 @@ It is rarely the case that a single $1 \times 1 \times \un^{[l-1]}$ convolution 
 Mathematically, $1 \times 1$ convolution performs the following operations--
 \begin{align} \label{eq:conv11}
 \begin{split}
-  Z^{[l](m)}_{hwc} &= \sum_{i}^{D} W^{[l]}_{ic}A^{[l-1](m)}_{h^{'}w^{'}i} + b^{[l]}_{hwc},
+  Z^{[l](m)}_{hwc} &= \sum_{i}^{D} W^{[l]}_{ic}A^{[l-1](m)}_{h^{'}w^{'}i} + b^{[l]}_{c},
 \\
   A^{[l](m)}_{hwc} &= g^{[l]}(Z^{[l](m)}_{hwc}),
 \end{split}
 \end{align}
-with $h^{'} = hs$ \& $w^{'} = ws$ where $s$ is the stride, and $b^{[l]}_{hwc} \equiv b^{[l]}_{h^{'}w^{'}c} \forall c$. Notice that since $b^{[l]}_{hwc} \equiv b^{[l]}_{h^{'}w^{'}c} \forall c$, we have just one unique value of $b$ per output channel. In the \textsc{Python} programming language, we would say that we \textit{broadcast} $b$ to the shape of $Z^{[l](m)}_{hwc}$.
+with $h^{'} = hs$ \& $w^{'} = ws$ where $s$ is the stride. Notice that since $b^{[l]}_{c} $ carries just a channel index, we have a single value of $b$ for each output channel. As is evident from the Einstein summation convention, equation \label{eq:conv11} is really a full set of equations, one per output pixel. In the \textsc{Python} programming language, we would say that we \textit{broadcast} $b$ to the shape of $Z^{[l](m)}_{hwc}$.
 
 The derivatives of the loss function $\mathscr{L}$ for $1 \times 1 \times D$ convolution are given by
 \begin{equation} \label{eq:conv11dW}
