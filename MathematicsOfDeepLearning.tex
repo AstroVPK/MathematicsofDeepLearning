@@ -294,43 +294,42 @@ Q.E.D.
 
 Convolutional layers usually include a bias term of the following form -
 \begin{equation} \label{eq:convbias}
-  T^{[l](m)}_{hwc} = T^{[l-1](m)}_{hwc} + b^{[l]}_{c},
+  Z^{[l](m)}_{hwc} = Y^{[l-1](m)}_{hwc} + b^{[l]}_{c},
 \end{equation}
 where the same bias is applied to each pixel within the same channel i.e. equation \eqref{eq:convbias} expands to $H \times W$ equations by Einstein's summation convention. The derivative of the loss with respect to the bias terms are given by
 \begin{equation} \label{eq:gradconvbias}
-  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial T^{[l](a)}_{ijc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijc}},
 \end{equation}
 while the derivative of the loss with respect to the inputs are given by
 \begin{equation} \label{eq:propconvbias}
-  \frac{\uderivative \mathscr{L}}{\uderivative T^{[l-1](m)}_{hwc}} = \frac{\partial \mathscr{L}}{\partial  T^{[l](m)}_{hwc}}
+  \frac{\uderivative \mathscr{L}}{\uderivative Y^{[l-1](m)}_{hwc}} = \frac{\partial \mathscr{L}}{\partial  Z^{[l](m)}_{hwc}}
 \end{equation}
 
 \subsubsection{Derivation}
 First, consider the derivative of the loss with respect to the bias. By the chain rule, we have
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \frac{\partial \mathscr{L}}{\partial T^{[l](a)}_{ijk}} \frac{\uderivative T^{[l](a)}_{ijk}}{\uderivative b^{[l]}_{c}}.
+  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijk}} \frac{\uderivative Z^{[l](a)}_{ijk}}{\uderivative b^{[l]}_{c}}.
 \end{equation*}
 Notice that
 \begin{equation*}
-  \frac{\uderivative T^{[l](a)}_{ijk}}{\uderivative b^{[l]}_{c}} = \delta_{kc},
+  \frac{\uderivative Z^{[l](a)}_{ijk}}{\uderivative b^{[l]}_{c}} = \delta_{kc},
 \end{equation*} so that
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \delta_{ck} \frac{\partial \mathscr{L}}{\partial T^{[l](a)}_{ijk}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial T^{[l](a)}_{ijc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \delta_{ck} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijk}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijc}},
 \end{equation*}
 Q.E.D.
 
-
 Now consider the derivative of the loss with respect to the input derivatives from the previous operation. Again, applying the chain rule we get
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative T^{[l-1](m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\partial  T^{[l](a)}_{ijk}} \frac{\uderivative  T^{[l](a)}_{ijk}}{\uderivative T^{[l-1](m)}_{hwc}}.
+  \frac{\uderivative \mathscr{L}}{\uderivative Y^{[l-1](m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijk}} \frac{\uderivative  Z^{[l](a)}_{ijk}}{\uderivative Y^{[l-1](m)}_{hwc}}.
 \end{equation*}
 But notice that
 \begin{equation*}
-  \frac{\uderivative  T^{[l](a)}_{ijk}}{\uderivative T^{[l-1](m)}_{hwc}} = \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc},
+  \frac{\uderivative Z^{[l](a)}_{ijk}}{\uderivative Y^{[l-1](m)}_{hwc}} = \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc},
 \end{equation*}
 so that
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative T^{[l-1](m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc} \frac{\partial \mathscr{L}}{\partial  T^{[l](a)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial  T^{[l](m)}_{hwc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative Y^{[l-1](m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc} \frac{\partial \mathscr{L}}{\partial  Z^{[l](a)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial  Z^{[l](m)}_{hwc}},
 \end{equation*}
 Q.E.D.
 
