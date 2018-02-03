@@ -146,7 +146,7 @@
 
 \begin{document}
 
-\title{The Mathematics of Deep Learning\footnote{This is a draft prepared for the Agent Library group at Wave Computing.}}
+\title{The Mathematics of Deep Learning\footnote{Draft prepared for personal use.}}
 
 %% LaTeX will automatically break titles if they run longer than
 %% one line. However, you may use \\ to force a line break if
@@ -377,6 +377,31 @@ so that
   \frac{\uderivative \mathscr{L}}{\uderivative Y^{[l-1](m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc} \frac{\partial \mathscr{L}}{\partial  Z^{[l](a)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial  Z^{[l](m)}_{hwc}},
 \end{equation*}
 Q.E.D.
+
+\subsection{Convolution} \label{sec:conv}
+
+Convolution operations convolve a set of filters $\mathbfss{W}_{F \times F \times C \times D}$ with an input tensor $\mathbfss{X}_{H' \times W' \times C}$ with padding $p$ and stride $s$ to produce the output tensor $\mathbfss{Y}_{H \times W \times D \equiv \lfloor \frac{H' + 2p - F}{s} + 1\rfloor \times \lfloor \frac{W' + 2p - F}{s} + 1\rfloor \times D} = \mathbfss{W}_{F \times F \times C \times D} \ast \mathbfss{X}_{H \times W \times C}$ as follows
+\begin{equation} \label{eq:conv}
+  Y_{abd} = \sum^{\frac{F-1}{2},C}_{i,j = \frac{1-F}{2},c=1} W_{f_{1}f_{2}cd} X_{a'+f_{1}, b'+f_{2},c},
+\end{equation}
+with $a' = as$ and $b' = bs$.
+
+\subsubsection{Derivation}
+
+We wish to compute the total derivative of the loss $\mathscr{L}$ with respect to the filter $\mathbfss{W}$ and also the total derivative of $\mathscr{L}$ with respect to the input tensor $\mathbfss{X}$ given the derivative of $\mathscr{L}$ with respect to the output tensor $\mathbfss{Y}$.
+
+First lets compute the total derivative of the loss $\mathscr{L}$ with respect to the filter $\mathbfss{W}$. Using the chain rule, we have
+\begin{equation*}
+  \frac{\uderivative L}{\uderivative W_{f_{1}f_{2}cd}} = \sum_{ijk}^{HWD} \frac{\partial L}{\partial Y_{ijk}} \frac{\uderivative Y_{ijk}}{\uderivative W_{f_{1}f_{2}cd}},
+\end{equation*}
+but equation \eqref{eq:conv} gives
+\begin{equation*}
+  \frac{\uderivative Y_{ijk}}{\uderivative W_{f_{1}f_{2}cd}} = \delta_{kd} X_{i' + f_{1}, j' + f_{2}, c}.
+\end{equation*}
+So
+\begin{equation*}
+  \frac{\uderivative L}{\uderivative W_{f_{1}f_{2}cd}} = \sum_{ijk}^{HWD} \delta_{kd} X_{i' + f_{1}, j' + f_{2}, c} \frac{\partial L}{\partial Y_{ijk}}  = \sum_{ij}^{HW} X_{i' + f_{1}, j' + f_{2}, c} \frac{\partial L}{\partial Y_{ijd}}
+\end{equation*}
 
 \section{Output Layers} \label{sec:out}
 
