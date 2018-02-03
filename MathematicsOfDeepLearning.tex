@@ -382,9 +382,9 @@ Q.E.D.
 
 Convolution operations convolve a set of filters $\mathbfss{W}_{F \times F \times C \times D}$ with an input tensor $\mathbfss{X}_{H' \times W' \times C}$ with padding $p$ and stride $s$ to produce the output tensor $\mathbfss{Y}_{H \times W \times D \equiv \lfloor \frac{H' + 2p - F}{s} + 1\rfloor \times \lfloor \frac{W' + 2p - F}{s} + 1\rfloor \times D} = \mathbfss{W}_{F \times F \times C \times D} \ast \mathbfss{X}_{H \times W \times C}$ as follows
 \begin{equation} \label{eq:conv}
-  Y_{abd} = \sum^{\frac{F-1}{2},C}_{i,j = \frac{1-F}{2},c=1} W_{f_{1}f_{2}cd} X_{a'+f_{1}, b'+f_{2},c},
+  Y_{abd} = \sum^{\frac{F-1}{2},C}_{f_{1},f_{2} = \frac{1-F}{2}, c = 1} W_{f_{1}f_{2}cd} X_{a'+f_{1}, b'+f_{2},c},
 \end{equation}
-with $a' = as$ and $b' = bs$.
+with $a' = \frac{F - 1}{2} + (a - 1)s$ and $b' = \frac{F - 1}{2} + (b - 1)s$.
 
 \subsubsection{Derivation}
 
