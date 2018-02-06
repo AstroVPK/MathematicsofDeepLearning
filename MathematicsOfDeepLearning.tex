@@ -419,11 +419,11 @@ with $a' = \frac{F - 1}{2} + (a - 1)s$ and $b' = \frac{F - 1}{2} + (b - 1)s$. So
 
 Similarly, we may compute the total derivative of $\mathscr{L}$ with respect to the inputs $\mathbfss{X}$ using the chain rule as follows
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative X^{(m)}_{a'b'c'}} = \sum_{lijk}^{MHWC} \frac{\partial \mathscr{L}}{\partial Y^{(l)}_{ijk}} \frac{\uderivative Y^{(l)}_{ijk}}{\uderivative X^{(m)}_{a'b'c'}}.
+  \frac{\uderivative \mathscr{L}}{\uderivative X^{(m)}_{a'b'c'}} = \sum_{dabc}^{MHWC} \frac{\partial \mathscr{L}}{\partial Y^{(d)}_{abc}} \frac{\uderivative Y^{(d)}_{abc}}{\uderivative X^{(m)}_{a'b'c'}}.
 \end{equation*}
 Now
 \begin{equation*}
-  \frac{\uderivative Y^{(l)}_{ijk}}{\uderivative X^{(m)}_{a'b'c'}} = \delta_{lm}
+  \frac{\uderivative Y^{(d)}_{abc}}{\uderivative X^{(m)}_{a'b'c'}} = \delta_{dm}
 \end{equation*}
 
 \section{Output Layers} \label{sec:out}
