@@ -339,50 +339,64 @@ Q.E.D.
 
 Convolutional layers usually include a bias term of the following form -
 \begin{equation} \label{eq:convbias}
-  Z^{[l](m)}_{hwc} = Y^{[l-1](m)}_{hwc} + b^{[l]}_{c},
+  \mathbfss{Z}^{(m)} = \mathbfss{Y}^{(m)} + \mathbfit{b},
+\end{equation}
+i.e.
+\begin{equation} \label{eq:convbias}
+  Z^{(m)}_{hwc} = Y^{(m)}_{hwc} + b_{c},
 \end{equation}
 where the same bias is applied to each pixel within the same channel i.e. equation \eqref{eq:convbias} expands to $H \times W$ equations by Einstein's summation convention. The derivative of the loss with respect to the bias terms are given by
 \begin{equation} \label{eq:gradconvbias}
-  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative b_{c}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial Z^{(a)}_{ijc}},
 \end{equation}
 while the derivative of the loss with respect to the inputs are given by
 \begin{equation} \label{eq:propconvbias}
-  \frac{\uderivative \mathscr{L}}{\uderivative Y^{[l-1](m)}_{hwc}} = \frac{\partial \mathscr{L}}{\partial  Z^{[l](m)}_{hwc}}
+  \frac{\uderivative \mathscr{L}}{\uderivative Y^{(m)}_{hwc}} = \frac{\partial \mathscr{L}}{\partial  Z^{(m)}_{hwc}}
 \end{equation}
 
 \subsubsection{Derivation}
 First, consider the derivative of the loss with respect to the bias. By the chain rule, we have
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijk}} \frac{\uderivative Z^{[l](a)}_{ijk}}{\uderivative b^{[l]}_{c}}.
+  \frac{\uderivative \mathscr{L}}{\uderivative b_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \frac{\partial \mathscr{L}}{\partial Z^{(a)}_{ijk}} \frac{\uderivative Z^{(a)}_{ijk}}{\uderivative b_{c}}.
 \end{equation*}
 Notice that
 \begin{equation*}
-  \frac{\uderivative Z^{[l](a)}_{ijk}}{\uderivative b^{[l]}_{c}} = \delta_{kc},
+  \frac{\uderivative Z^{(a)}_{ijk}}{\uderivative b_{c}} = \delta_{kc},
 \end{equation*} so that
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative b^{[l]}_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \delta_{ck} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijk}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative b_{c}} = \sum_{a, i, j, k = 1}^{M, H, W, C} \delta_{ck} \frac{\partial \mathscr{L}}{\partial Z^{(a)}_{ijk}} = \sum_{a, i, j = 1}^{M, H, W} \frac{\partial \mathscr{L}}{\partial Z^{(a)}_{ijc}},
 \end{equation*}
 Q.E.D.
 
 Now consider the derivative of the loss with respect to the input derivatives from the previous operation. Again, applying the chain rule we get
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative Y^{[l-1](m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\partial Z^{[l](a)}_{ijk}} \frac{\uderivative  Z^{[l](a)}_{ijk}}{\uderivative Y^{[l-1](m)}_{hwc}}.
+  \frac{\uderivative \mathscr{L}}{\uderivative Y^{(m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \frac{\partial \mathscr{L}}{\partial Z^{(a)}_{ijk}} \frac{\uderivative  Z^{(a)}_{ijk}}{\uderivative Y^{(m)}_{hwc}}.
 \end{equation*}
 But notice that
 \begin{equation*}
-  \frac{\uderivative Z^{[l](a)}_{ijk}}{\uderivative Y^{[l-1](m)}_{hwc}} = \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc},
+  \frac{\uderivative Z^{(a)}_{ijk}}{\uderivative Y^{(m)}_{hwc}} = \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc},
 \end{equation*}
 so that
 \begin{equation*}
-  \frac{\uderivative \mathscr{L}}{\uderivative Y^{[l-1](m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc} \frac{\partial \mathscr{L}}{\partial  Z^{[l](a)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial  Z^{[l](m)}_{hwc}},
+  \frac{\uderivative \mathscr{L}}{\uderivative Y^{(m)}_{hwc}} = \sum_{a,i,j,k = 1}^{M,H,W,C} \delta_{am}\delta_{ih}\delta_{jw}\delta_{kc} \frac{\partial \mathscr{L}}{\partial  Z^{(a)}_{ijk}} = \frac{\partial \mathscr{L}}{\partial  Z^{(m)}_{hwc}},
 \end{equation*}
 Q.E.D.
 
 \subsection{Convolution} \label{sec:conv}
 
-Convolution operations convolve a set of filters $\mathbfss{W}_{F \times F \times C \times D}$ with an input tensor $\mathbfss{X}_{H' \times W' \times C}$ with padding $p$ and stride $s$ to produce the output tensor $\mathbfss{Y}_{H \times W \times D \equiv \lfloor \frac{H' + 2p - F}{s} + 1\rfloor \times \lfloor \frac{W' + 2p - F}{s} + 1\rfloor \times D} = \mathbfss{W}_{F \times F \times C \times D} \ast \mathbfss{X}_{H \times W \times C}$ as follows
+Convolution operations convolve a set of $C \times F \times F \times C'$-dimensional filters with a $H' \times W' \times C'_{\mathrm{i}}$-dimensional input tensor $\mathbfss{X}$ producing the $H \times W \times C$-dimensional output tensor $\mathbfss{Y}$ via
+\begin{equation}\label{eq:convtensorial}
+  \mathbfss{Y}^{(m)} = \mathbfss{W} \ast \mathbfss{X}^{(m)}.
+\end{equation}
+$\mathbfss{X}$ is often padded with $0$s in the $H$ \& $W$ dimensions in order to make the size of the tensor a multiple of the filter size. Padding $\mathbfss{X}$ (dimensions $H' \times W' \times C'$) with $p$ zeros produces the padded tensor $\tilde{\mathbfss{X}}$ (dimensions $\tilde{H}' \times \tilde{W}' \times C' \equiv H' + 2p \times W' + 2p \times C$). Additionally, the {\it stride } $s$ of the convolution is not always $1$. Given non-zero padding $p$ and non-unit stride $s$, the convolution operation in equation \eqref{eq:convtensorial} can be computed as
 \begin{equation} \label{eq:conv}
-  Y_{abd} = \sum^{\frac{F-1}{2},C}_{f_{1},f_{2} = \frac{1-F}{2}, c = 1} W_{f_{1}f_{2}cd} X_{a'+f_{1}, b'+f_{2},c},
+  Y^{(m)}_{abc} = \sum^{\frac{F-1}{2},C'}_{f_{1},f_{2} = \frac{1-F}{2}, c' = 1} W_{cf_{1}f_{2}c'} \tilde{X}^{(m)}_{a'+f_{1}, b'+f_{2},c'},
+\end{equation}
+with $a' = \frac{F - 1}{2} + (a - 1)s$ and $b' = \frac{F - 1}{2} + (b - 1)s$.
+
+The derivative of the loss with respect to the filter $\mathbfss{W}$ is given by
+\begin{equation}
+  \frac{\uderivative \mathscr{L}}{\uderivative W_{cf_{1}f_{2}c'}} = \sum_{mab}^{MHW} \tilde{X}^{(m)}_{a' + f_{1}, b' + f_{2}, c'} \frac{\partial L}{\partial Y^{(m)}_{abc}},
 \end{equation}
 with $a' = \frac{F - 1}{2} + (a - 1)s$ and $b' = \frac{F - 1}{2} + (b - 1)s$.
 
@@ -392,15 +406,24 @@ We wish to compute the total derivative of the loss $\mathscr{L}$ with respect t
 
 First lets compute the total derivative of the loss $\mathscr{L}$ with respect to the filter $\mathbfss{W}$. Using the chain rule, we have
 \begin{equation*}
-  \frac{\uderivative L}{\uderivative W_{f_{1}f_{2}cd}} = \sum_{ijk}^{HWD} \frac{\partial L}{\partial Y_{ijk}} \frac{\uderivative Y_{ijk}}{\uderivative W_{f_{1}f_{2}cd}},
+  \frac{\uderivative \mathscr{L}}{\uderivative W_{cf_{1}f_{2}c'}} = \sum_{mabk}^{MHWC} \frac{\partial \mathscr{L}}{\partial Y^{(m)}_{abk}} \frac{\uderivative Y^{(m)}_{abk}}{\uderivative W_{cf_{1}f_{2}c'}}.
 \end{equation*}
-but equation \eqref{eq:conv} gives
+Equation \eqref{eq:conv} gives
 \begin{equation*}
-  \frac{\uderivative Y_{ijk}}{\uderivative W_{f_{1}f_{2}cd}} = \delta_{kd} X_{i' + f_{1}, j' + f_{2}, c}.
+  \frac{\uderivative Y^{(m)}_{abk}}{\uderivative W_{cf_{1}f_{2}c'}} = \delta_{kc} \tilde{X}^{(m)}_{a' + f_{1}, b' + f_{2}, c'},
 \end{equation*}
-So
+with $a' = \frac{F - 1}{2} + (a - 1)s$ and $b' = \frac{F - 1}{2} + (b - 1)s$. So
 \begin{equation*}
-  \frac{\uderivative L}{\uderivative W_{f_{1}f_{2}cd}} = \sum_{ijk}^{HWD} \delta_{kd} X_{i' + f_{1}, j' + f_{2}, c} \frac{\partial L}{\partial Y_{ijk}}  = \sum_{ij}^{HW} X_{i' + f_{1}, j' + f_{2}, c} \frac{\partial L}{\partial Y_{ijd}}
+  \frac{\uderivative \mathscr{L}}{\uderivative W_{cf_{1}f_{2}c'}} = \sum_{mabk}^{MHWC} \delta_{kc} \tilde{X}^{(m)}_{a' + f_{1}, b' + f_{2}, c'} \frac{\partial L}{\partial Y^{(m)}_{abk}} = \sum_{mab}^{MHW} \tilde{X}^{(m)}_{a' + f_{1}, b' + f_{2}, c'} \frac{\partial L}{\partial Y^{(m)}_{abc}}
+\end{equation*}
+
+Similarly, we may compute the total derivative of $\mathscr{L}$ with respect to the inputs $\mathbfss{X}$ using the chain rule as follows
+\begin{equation*}
+  \frac{\uderivative \mathscr{L}}{\uderivative X^{(m)}_{a'b'c'}} = \sum_{lijk}^{MHWC} \frac{\partial \mathscr{L}}{\partial Y^{(l)}_{ijk}} \frac{\uderivative Y^{(l)}_{ijk}}{\uderivative X^{(m)}_{a'b'c'}}.
+\end{equation*}
+Now
+\begin{equation*}
+  \frac{\uderivative Y^{(l)}_{ijk}}{\uderivative X^{(m)}_{a'b'c'}} = \delta_{lm}
 \end{equation*}
 
 \section{Output Layers} \label{sec:out}
